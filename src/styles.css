@@ -14,15 +14,15 @@ html,body{overflow-x:hidden}
 .app{display:grid;min-height:100vh;height:100vh;align-items:stretch;gap:0;padding:0;grid-template-columns:1px 1fr 1px}
 
 /* Place brand and nav into the 1px gutters via absolute positioning */
-.top-header{left:1px;right:1px}
-.top-header .brand{position:fixed;left:14px;top:10px}
-.top-header .top-nav{position:fixed;right:14px;top:10px}
+:root{
+  --header-height: 64px;
+}
 
 /* Top header */
-.top-header{position:fixed;left:0;right:0;top:0;height:56px;background:transparent;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;z-index:50}
-.top-header .brand{font-weight:800;font-size:18px}
+.top-header{position:fixed;left:0;right:0;top:0;height:var(--header-height);background:transparent;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;z-index:200}
+.top-header .brand{font-weight:800;font-size:18px;display:flex;align-items:center}
 .top-header .top-nav{display:flex;gap:8px}
-.hamburger{display:none;background:transparent;border:none;font-size:22px;position:fixed;top:10px;right:14px;z-index:60}
+.hamburger{display:none;background:transparent;border:none;font-size:22px;z-index:220}
 
 /* Mobile nav overlay */
 .mobile-nav-overlay{position:fixed;left:0;top:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(6,10,16,0.95),rgba(12,16,24,0.98));z-index:999999;display:flex;align-items:center;justify-content:center;color:white}
@@ -38,7 +38,7 @@ html,body{overflow-x:hidden}
 .sidebar{background:transparent}
 /* Make the main area full-bleed by default. Use .inner as the padded card/content wrapper that stretches to fill the viewport. */
 .main{background:transparent;padding:0;border-radius:0;box-shadow:none;min-width:0;box-sizing:border-box;min-height:100vh;display:flex}
-.main .inner{background:var(--card);padding:28px;border-radius:16px;box-shadow:0 10px 30px rgba(10,20,20,0.04);min-height:calc(100vh - 56px);box-sizing:border-box;width:calc(100vw - 2px);max-width:none;margin-left:1px;margin-right:1px;display:flex;flex-direction:column}
+.main .inner{background:var(--card);padding:28px;border-radius:16px;box-shadow:0 10px 30px rgba(10,20,20,0.04);min-height:calc(100vh - var(--header-height));box-sizing:border-box;width:calc(100vw - 2px);max-width:none;margin-left:1px;margin-right:1px;display:flex;flex-direction:column;padding-top:calc(28px + var(--header-height))}
 .cart{background:transparent}
 
 .restaurant-list{display:flex;flex-direction:column;gap:10px}
