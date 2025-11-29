@@ -153,8 +153,8 @@ html,body{overflow-x:hidden}
 .mobile-cart-header h2{margin:0;font-size:18px}
 
 /* Home view */
-.home{padding:18px 24px;display:flex;flex-direction:column}
-.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;align-items:start}
+.home{padding:18px 24px;display:flex;flex-direction:column;flex:1;min-height:0}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;align-items:start;flex:1;min-height:0;overflow:auto;align-content:start}
 .home-card{display:flex;gap:18px;align-items:center;padding:18px;background:var(--card);border-radius:14px;border:1px solid #eef7f7;cursor:pointer;transition:transform 140ms ease,box-shadow 140ms ease}
 .home-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(10,20,20,0.04)}
 .home-thumb{width:96px;height:80px;border-radius:12px;background:linear-gradient(135deg,#f0fbfb,#e8f6f6)}
