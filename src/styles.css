@@ -4,24 +4,20 @@
   --accent: #0ea5a1;
   --card: #ffffff;
   --muted-2: #e9f2f3;
+  --header-height: 72px;
 }
 
 *{box-sizing:border-box}
 html,body,#root{height:100%}
 .app{max-width:100%;overflow-x:hidden}
-body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue';background:var(--bg);margin:0;color:#0b2b2d;min-height:100%}
+body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue';background:var(--bg);margin:0;color:#0b2b2d;min-height:100%;padding-top:var(--header-height)}
 html,body{overflow-x:hidden}
 .app{display:grid;min-height:100vh;height:100vh;align-items:stretch;gap:0;padding:0;grid-template-columns:1px 1fr 1px}
 
-/* Place brand and nav into the 1px gutters via absolute positioning */
-:root{
-  --header-height: 64px;
-}
-
-/* Top header */
-.top-header{position:fixed;left:0;right:0;top:0;height:var(--header-height);background:transparent;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;z-index:200}
-.top-header .brand{font-weight:800;font-size:18px;display:flex;align-items:center}
-.top-header .top-nav{display:flex;gap:8px}
+/* Top header (fixed safe area) */
+.top-header{position:fixed;left:0;right:0;top:0;height:var(--header-height);background:var(--card);display:flex;align-items:center;justify-content:space-between;padding:12px 20px;z-index:200;box-shadow:0 6px 18px rgba(10,20,20,0.04);backdrop-filter:blur(6px)}
+.top-header .brand{font-weight:800;font-size:18px;display:flex;align-items:center;margin-left:8px}
+.top-header .top-nav{display:flex;gap:8px;margin-right:8px}
 .hamburger{display:none;background:transparent;border:none;font-size:22px;z-index:220}
 
 /* Mobile nav overlay */
@@ -109,25 +105,13 @@ html,body{overflow-x:hidden}
     box-sizing:border-box;
   }
 
-  /* ensure the items grid takes full available width and stacks comfortably */
   .app[data-view="ordering"] .items-grid{grid-template-columns:1fr;gap:16px}
-}
 
-/* Make main content fill viewport and categories scale on small screens */
-@media (max-width: 900px){
   .app .main{width:100vw;max-width:100vw;padding-left:18px;padding-right:18px;border-radius:0}
   .app .main .menu .category{width:100%}
   .app .main .items-grid{grid-template-columns:1fr;gap:14px}
-}
 
-/* When the cart overlay is open on mobile, hide only the sidebar and scale the main content
-   (so items are not translated/slid — they uniformly scale instead). Background scroll is disabled. */
-.app[data-view="cart"] .sidebar{display:none !important}
-@media (max-width:900px){
   .app[data-view="cart"]{overflow:hidden}
-
-  /* remove forcing html/body hidden (caused clipping on some iPhones) */
-  /* allow page to retain normal layout while we show the full-screen cart overlay */
 
   /* scale main instead of shifting children; also ensure it can shrink without clipping */
   .app[data-view="cart"] .main{
@@ -141,6 +125,8 @@ html,body{overflow-x:hidden}
   /* safer content paddings on small screens */
   .app .main{padding-left:clamp(12px,4vw,20px);padding-right:clamp(12px,4vw,20px)}
   .mobile-cart-body{padding:env(safe-area-inset-top,18px) env(safe-area-inset-right,18px) env(safe-area-inset-bottom,18px) env(safe-area-inset-left,18px)}
+
+  .app[data-view="cart"] .floating-cart-btn{display:none}
 }
 
 /* Mobile cart overlay (covers underlying content) */
