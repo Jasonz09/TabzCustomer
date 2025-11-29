@@ -11,7 +11,12 @@ html,body,#root{height:100%}
 .app{max-width:100%;overflow-x:hidden}
 body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue';background:var(--bg);margin:0;color:#0b2b2d;min-height:100%}
 html,body{overflow-x:hidden}
-.app{display:grid;min-height:100vh;height:100vh;align-items:stretch;gap:20px;padding:0;grid-template-columns:clamp(160px,12vw,240px) 1fr clamp(160px,12vw,240px)}
+.app{display:grid;min-height:100vh;height:100vh;align-items:stretch;gap:0;padding:0;grid-template-columns:1px 1fr 1px}
+
+/* Place brand and nav into the 1px gutters via absolute positioning */
+.top-header{left:1px;right:1px}
+.top-header .brand{position:fixed;left:14px;top:10px}
+.top-header .top-nav{position:fixed;right:14px;top:10px}
 
 /* Top header */
 .top-header{position:fixed;left:0;right:0;top:0;height:56px;background:transparent;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;z-index:50}
