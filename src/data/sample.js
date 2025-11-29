@@ -3,6 +3,8 @@ const sample = [
     id: 'r1',
     name: 'Sakura Teriyaki',
     description: 'Modern Japanese favorites',
+    rating: 4.4,
+    distance: 1.2, // miles
     demoCustomerPoints: 120,
     pointsRate: 100, // points required per free item or similar demo
     corpCode: 'C100',
@@ -30,6 +32,8 @@ const sample = [
     id: 'r2',
     name: 'Green Bowl',
     description: 'Healthy bowls and salads',
+    rating: 4.7,
+    distance: 0.8,
     demoCustomerPoints: 40,
     pointsRate: 80,
     corpCode: 'C200',

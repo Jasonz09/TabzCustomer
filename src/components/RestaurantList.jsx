@@ -16,8 +16,10 @@ export default function RestaurantList({ restaurants, selected, onSelect }){
               <div className="rc-desc muted">{r.description}</div>
             </div>
           </div>
-          <div className="rc-right">
-            <div className="badge">{r.demoCustomerPoints} pts</div>
+          <div className="rc-right" style={{textAlign:'right'}}>
+            <div style={{fontWeight:700}}>{r.rating}★</div>
+            <div className="muted">{r.distance} mi</div>
+            <div style={{marginTop:6}}><div className="badge">{r.demoCustomerPoints} pts</div></div>
           </div>
         </div>
       ))}

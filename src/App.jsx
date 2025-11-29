@@ -139,6 +139,7 @@ export default function App() {
         <div className="brand">Tabz</div>
         <nav className="top-nav">
           <button className="pill" onClick={()=>setView('home')}>Home</button>
+          <button className="pill" onClick={()=>setView('giftcards')}>Giftcards</button>
           <button className="pill" onClick={()=>setView('orders')}>Orders</button>
           <button className="pill" onClick={()=>setView('account')}>Account</button>
         </nav>
