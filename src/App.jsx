@@ -2,21 +2,23 @@ import React, { useState, useEffect } from 'react'
 import RestaurantList from './components/RestaurantList'
 import Menu from './components/Menu'
 import Cart from './components/Cart'
+import Home from './views/Home'
+import RestaurantDetail from './views/RestaurantDetail'
 import sampleData from './data/sample'
 
 export default function App() {
   const [restaurants] = useState(sampleData)
-  const [selected, setSelected] = useState(restaurants[0])
+  const [selected, setSelected] = useState(null)
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('cart')||'[]'))
-  const [dineInCode, setDineInCode] = useState(() => localStorage.getItem('dineInCode') || '')
+  // per-restaurant dine-in codes are handled below
+  const [view, setView] = useState('home') // 'home' | 'detail' | 'ordering'
+  const [orderingMode, setOrderingMode] = useState(null) // 'dinein' | 'takeout'
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart))
   }, [cart])
 
-  useEffect(() => {
-    localStorage.setItem('dineInCode', dineInCode)
-  }, [dineInCode])
+  
 
   // initialize per-restaurant demo points in localStorage if not present
   useEffect(() => {
@@ -40,6 +42,8 @@ export default function App() {
   }, [])
 
   const addToCart = (item, qty=1) => {
+    // only allow addToCart when a restaurant is selected (ordering view)
+    if (!selected) return
     setCart(prev => {
       const found = prev.find(i => i.id === item.id && i.restaurantId === selected.id)
       if (found) return prev.map(i => i.id === item.id && i.restaurantId === selected.id ? {...i, qty: i.qty + qty} : i)
@@ -81,43 +85,135 @@ export default function App() {
 
   const clearCart = () => setCart([])
 
+  const handleSelectRestaurant = (r) => {
+    setSelected(r)
+    setView('detail')
+  }
+
+  const handleStartOrdering = (mode) => {
+    setOrderingMode(mode)
+    setView('ordering')
+  }
+
+  // per-restaurant dine-in code state (loaded when a restaurant is selected)
+  const [currentDineInCode, setCurrentDineInCode] = useState('')
+  const [orderingInputCode, setOrderingInputCode] = useState('')
+
+  useEffect(() => {
+    if (selected) {
+      const key = `dineInCode_${selected.id}`
+      setCurrentDineInCode(localStorage.getItem(key) || '')
+    } else {
+      setCurrentDineInCode('')
+    }
+    // sync ordering input when selected changes
+    setOrderingInputCode('')
+  }, [selected])
+
+  const setDineInCodeForSelected = (code) => {
+    if (!selected) return
+    const key = `dineInCode_${selected.id}`
+    localStorage.setItem(key, code)
+    setCurrentDineInCode(code)
+  }
+
+  useEffect(()=>{
+    // keep the ordering input synced to saved code when saved elsewhere
+    setOrderingInputCode(currentDineInCode || '')
+  }, [currentDineInCode])
+
   return (
-    <div className="app">
+    <div className="app" data-view={view}>
       <aside className="sidebar">
-        <h2>Restaurants</h2>
-        <RestaurantList restaurants={restaurants} selected={selected} onSelect={setSelected} />
-        <div className="dinein">
-          <h3>Dine-in</h3>
-          <input placeholder="Enter table code" value={dineInCode} onChange={e=>setDineInCode(e.target.value)} />
-          <small>Enter the code shown at your table to link order</small>
-        </div>
+        {/* Sidebar intentionally left empty — restaurant list removed per UX request */}
       </aside>
 
       <main className="main">
-        <header className="restaurant-header">
-          <div>
-            <h1>{selected.name}</h1>
-            <p className="muted">{selected.description}</p>
-          </div>
-          <div className="points">
-            <small>Points Balance</small>
-            <div className="points-balance"><strong>{parseInt(localStorage.getItem(`pointsMap_${selected.id}`) || selected.demoCustomerPoints)}</strong></div>
-          </div>
-        </header>
+        <div className="inner">
+          {view === 'home' && (
+            <Home restaurants={restaurants} onSelect={handleSelectRestaurant} />
+          )}
 
-  <Menu categories={selected.categories} onAdd={addToCart} selectedRestaurant={selected} onRedeem={redeemPointsForFreeItem} />
+          {view === 'detail' && selected && (
+            <RestaurantDetail restaurant={selected} onBack={()=>setView('home')} onStartOrdering={handleStartOrdering} setDineInCode={setDineInCodeForSelected} currentDineInCode={currentDineInCode} />
+          )}
+
+          {view === 'ordering' && selected && (
+            <>
+              <header className="restaurant-header">
+                <div style={{display:'flex', alignItems:'center', gap:12}}>
+                  <button className="back" onClick={() => { setView('home'); setSelected(null); setOrderingMode(null); }}>&larr;</button>
+                  <div>
+                    <h1>{selected.name}</h1>
+                    <p className="muted">{selected.description}</p>
+
+                    <div style={{marginTop:8, display:'flex', gap:8, alignItems:'center'}}>
+                      <button className={`pill ${orderingMode==='dinein' ? 'active':''}`} onClick={()=>setOrderingMode('dinein')}>Dine In</button>
+                      <button className={`pill ${orderingMode==='takeout' ? 'active':''}`} onClick={()=>setOrderingMode('takeout')}>Takeout</button>
+                      {orderingMode === 'dinein' && (
+                        <div style={{marginLeft:12, display:'flex', gap:8, alignItems:'center'}}>
+                          <input className="dinein-input" placeholder="Table code" value={orderingInputCode} onChange={e=>setOrderingInputCode(e.target.value)} />
+                          <button className="save" onClick={()=>setDineInCodeForSelected(orderingInputCode)}>Save</button>
+                          <div style={{marginLeft:8}}>{currentDineInCode ? (selected.tableCodes.includes(currentDineInCode) ? <span className="badge valid">Valid</span> : <span className="badge invalid">Invalid</span>) : <span className="muted">No code</span>}</div>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                </div>
+                <div className="points">
+                  <small>Points Balance</small>
+                  <div className="points-balance"><strong>{selected ? parseInt(localStorage.getItem(`pointsMap_${selected.id}`) || selected.demoCustomerPoints) : 0}</strong></div>
+                </div>
+              </header>
+
+              <Menu categories={selected.categories} onAdd={addToCart} selectedRestaurant={selected} onRedeem={redeemPointsForFreeItem} />
+            </>
+          )}
+        </div>
       </main>
 
       <aside className="cart">
-        <Cart
-          cart={cart.filter(i=>i.restaurantId===selected.id)}
-          onClear={clearCart}
-          restaurant={selected}
-          onRedeem={redeemPointsForFreeItem}
-          dineInCode={dineInCode}
-          validDineIn={selected.tableCodes.includes(dineInCode)}
-        />
+        {view === 'ordering' && selected && (
+          <Cart
+            cart={cart.filter(i=> selected ? i.restaurantId===selected.id : false)}
+            onClear={clearCart}
+            restaurant={selected}
+            onRedeem={redeemPointsForFreeItem}
+            dineInCode={currentDineInCode}
+            validDineIn={selected ? selected.tableCodes.includes(currentDineInCode) : false}
+            orderingMode={orderingMode}
+            orderingInputCode={orderingInputCode}
+          />
+        )}
       </aside>
+
+      {/* Floating cart button for mobile */}
+      {view === 'ordering' && selected && (
+        <button className="floating-cart-btn" onClick={()=>setView('cart')}>View Cart ({cart.filter(i=> selected ? i.restaurantId===selected.id : false).length})</button>
+      )}
+
+      {/* Render mobile cart overlay at root so fixed/fullscreen covers viewport */}
+      {view === 'cart' && (
+        <div className="mobile-cart-overlay">
+          <div className="mobile-cart-header">
+            <button className="back" onClick={()=>setView('ordering')}>&larr;</button>
+            <h2>Cart</h2>
+          </div>
+          <div className="mobile-cart-body">
+            <Cart
+              cart={cart.filter(i=> selected ? i.restaurantId===selected.id : false)}
+              onClear={clearCart}
+              restaurant={selected}
+              onRedeem={redeemPointsForFreeItem}
+              dineInCode={currentDineInCode}
+              validDineIn={selected ? selected.tableCodes.includes(currentDineInCode) : false}
+              orderingMode={orderingMode}
+              orderingInputCode={orderingInputCode}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

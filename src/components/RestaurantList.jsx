@@ -4,7 +4,11 @@ export default function RestaurantList({ restaurants, selected, onSelect }){
   return (
     <div className="restaurant-list">
       {restaurants.map(r => (
-        <div key={r.id} className={`restaurant-card ${selected.id===r.id? 'active':''}`} onClick={()=>onSelect(r)}>
+        <div
+          key={r.id}
+          className={`restaurant-card ${(selected && selected.id===r.id) ? 'active':''}`}
+          onClick={()=>onSelect(r)}
+        >
           <div className="rc-left">
             <div className="rc-thumb" aria-hidden />
             <div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-export default function Cart({ cart, onClear, restaurant, onRedeem, dineInCode, validDineIn }){
+export default function Cart({ cart, onClear, restaurant, onRedeem, dineInCode, validDineIn, orderingMode, orderingInputCode }){
   const [usePoints, setUsePoints] = useState(false)
 
   const subtotal = cart.reduce((s,i)=>s + (i.price || 0) * i.qty, 0)
@@ -23,44 +23,37 @@ export default function Cart({ cart, onClear, restaurant, onRedeem, dineInCode, 
   const pointsCanCover = restaurant ? pointsAvailable >= restaurant.pointsRate : false
 
   return (
-    <div className="cart-box">
-      <h3>Cart</h3>
-      {cart.length===0 && <div className="empty">No items</div>}
-      {cart.map(i=> (
-        <div key={i.id} className={`cart-item ${i.redeemed? 'redeemed':''}`}>
-          <div>{i.qty}× {i.name} {i.redeemed && <small className="muted">(redeemed)</small>}</div>
-          <div>{i.redeemed ? <strong>Free</strong> : `$${(i.price*i.qty).toFixed(2)}`}</div>
-        </div>
-      ))}
-
-      <div className="summary">
-        <div>Subtotal <strong>${subtotal.toFixed(2)}</strong></div>
-        <div>Tax <strong>${tax.toFixed(2)}</strong></div>
-        <div className="total">Total <strong>${total.toFixed(2)}</strong></div>
-      </div>
-
-      <div className="points-section">
-        <label>
-          <input type="checkbox" checked={usePoints} onChange={e=>setUsePoints(e.target.checked)} /> Redeem points
-        </label>
-        {usePoints && (
-          <div className="redeem">
-            <div>Points available: <strong>{pointsAvailable}</strong> {isGroup && <small className="muted">(group)</small>}</div>
-            <div>Points needed per free item: <strong>{restaurant.pointsRate}</strong></div>
-            <div className="redeem-note muted">Pick a menu item's "Redeem" button to use points for that item.</div>
-            <button disabled={!pointsCanCover} onClick={()=>onRedeem && onRedeem(restaurant.id)} style={{display:'none'}}>Redeem for free item</button>
-          </div>
-        )}
-
-        <div className="dinein-status">
-          <small>Dine-in code: {dineInCode || '—'}</small>
-          <div>{dineInCode ? (validDineIn ? <span style={{color:'green'}}>Valid table code</span> : <span style={{color:'crimson'}}>Invalid code for this restaurant</span>) : <span style={{color:'#666'}}>Not using dine-in</span>}</div>
+    <div className="cart-box cart-panel">
+      <div className="ordered-items">
+        <h4>Ordered Items <span className="count">{cart.length.toString().padStart(2,'0')}</span></h4>
+        <div className="items-list">
+          {cart.length===0 && <div className="empty">No items</div>}
+          {cart.map((i, idx)=> (
+            <div key={i.id} className={`ordered-item ${idx===0? 'active':''} ${i.redeemed? 'redeemed':''}`}>
+              <div className="oi-left">
+                <div className="oi-qty">{i.qty}×</div>
+                <div className="oi-title">{i.name} {i.redeemed && <small className="muted">(redeemed)</small>}</div>
+              </div>
+              <div className="oi-price">{i.redeemed ? 'Free' : `$${(i.price*i.qty).toFixed(2)}`}</div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="actions">
-        <button className="place">Place Order</button>
-        <button onClick={onClear} className="clear">Clear</button>
+      <div className="payment-summary card">
+        <h5>Payment Summary</h5>
+        <div className="pm-row"><span>Subtotal</span><strong>${subtotal.toFixed(2)}</strong></div>
+        <div className="pm-row"><span>Tax</span><strong>${tax.toFixed(2)}</strong></div>
+        <div className="pm-total"><span>Total Payable</span><strong>${total.toFixed(2)}</strong></div>
+
+        <div style={{marginTop:8}}>
+          {orderingMode === 'dinein' && (
+            <div style={{marginBottom:8}}>
+              {!orderingInputCode ? <small style={{color:'#b02a37'}}>Table code required for Dine In</small> : (!validDineIn ? <small style={{color:'#b02a37'}}>Table code invalid</small> : <small style={{color:'#0b6b66'}}>Table code valid</small>)}
+            </div>
+          )}
+          <button className="place large" disabled={orderingMode === 'dinein' && (!orderingInputCode || !validDineIn)}>Place Order</button>
+        </div>
       </div>
     </div>
   )
