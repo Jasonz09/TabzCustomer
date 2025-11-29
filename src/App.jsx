@@ -4,6 +4,9 @@ import Menu from './components/Menu'
 import Cart from './components/Cart'
 import Home from './views/Home'
 import RestaurantDetail from './views/RestaurantDetail'
+import Giftcards from './views/Giftcards'
+import Orders from './views/Orders'
+import Account from './views/Account'
 import sampleData from './data/sample'
 
 export default function App() {
@@ -13,6 +16,7 @@ export default function App() {
   // per-restaurant dine-in codes are handled below
   const [view, setView] = useState('home') // 'home' | 'detail' | 'ordering'
   const [orderingMode, setOrderingMode] = useState(null) // 'dinein' | 'takeout'
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart))
@@ -90,6 +94,12 @@ export default function App() {
     setView('detail')
   }
 
+  const handleNavigate = (target) => {
+    // clear selection when navigating to top-level pages
+    setSelected(null)
+    setView(target)
+  }
+
   const handleStartOrdering = (mode) => {
     setOrderingMode(mode)
     setView('ordering')
@@ -124,6 +134,16 @@ export default function App() {
 
   return (
     <div className="app" data-view={view}>
+      {/* Top header with brand and mobile hamburger */}
+      <header className="top-header">
+        <div className="brand">Tabz</div>
+        <nav className="top-nav">
+          <button className="pill" onClick={()=>setView('home')}>Home</button>
+          <button className="pill" onClick={()=>setView('orders')}>Orders</button>
+          <button className="pill" onClick={()=>setView('account')}>Account</button>
+        </nav>
+        <button className="hamburger" onClick={()=>setMobileMenuOpen(true)} aria-label="Open menu">☰</button>
+      </header>
       <aside className="sidebar">
         {/* Sidebar intentionally left empty — restaurant list removed per UX request */}
       </aside>
@@ -131,7 +151,19 @@ export default function App() {
       <main className="main">
         <div className="inner">
           {view === 'home' && (
-            <Home restaurants={restaurants} onSelect={handleSelectRestaurant} />
+            <Home restaurants={restaurants} onSelect={handleSelectRestaurant} onNavigate={handleNavigate} />
+          )}
+
+          {view === 'giftcards' && (
+            <Giftcards />
+          )}
+
+          {view === 'orders' && (
+            <Orders />
+          )}
+
+          {view === 'account' && (
+            <Account />
           )}
 
           {view === 'detail' && selected && (
@@ -167,7 +199,7 @@ export default function App() {
                 </div>
               </header>
 
-              <Menu categories={selected.categories} onAdd={addToCart} selectedRestaurant={selected} onRedeem={redeemPointsForFreeItem} />
+              <Menu categories={selected.categories} onAdd={addToCart} selectedRestaurant={selected} onRedeem={redeemPointsForFreeItem} onNavigate={handleNavigate} />
             </>
           )}
         </div>
@@ -211,6 +243,21 @@ export default function App() {
               orderingMode={orderingMode}
               orderingInputCode={orderingInputCode}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Mobile full-screen nav overlay */}
+      {mobileMenuOpen && (
+        <div className="mobile-nav-overlay">
+          <div className="mobile-nav-inner">
+            <button className="close" onClick={()=>setMobileMenuOpen(false)}>✕</button>
+            <ul className="mobile-nav-list">
+              <li onClick={()=>{setView('home'); setMobileMenuOpen(false)}}>Home</li>
+              <li onClick={()=>{setView('orders'); setMobileMenuOpen(false)}}>Orders</li>
+              <li onClick={()=>{setView('giftcards'); setMobileMenuOpen(false)}}>Giftcards</li>
+              <li onClick={()=>{setView('account'); setMobileMenuOpen(false)}}>Account</li>
+            </ul>
           </div>
         </div>
       )}
